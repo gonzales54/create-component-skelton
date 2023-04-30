@@ -1,11 +1,11 @@
-import React from "react";
-import { FC } from "react";
+import React from 'react';
+import { FC } from 'react';
 
 interface FooterPropsType {}
 
-const Footer: FC<FooterPropsType> = (): JSX.Element => {
+const Footer: FC<FooterPropsType> = () => {
   return (
-    <h1>Hello</h1>
+    <></>
   );
 };
 
