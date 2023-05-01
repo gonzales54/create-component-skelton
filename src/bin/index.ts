@@ -26,18 +26,23 @@ class CreateComponent {
       fs.mkdirSync(this.pagesDirectoryPath);
     }
 
-    for(let i = 0; i < this.componentArray.length; i++) {
-      const componentName = this.componentArray[i];
-      
-      if(this.checkIfComponentAlreadyExists(componentName)) return;
-
-      if(this.ifModePageOrComponent === 'component') {
+    if(this.ifModePageOrComponent === 'component') {
+      for(let i = 0; i < this.componentArray.length; i++) {
+        const componentName = this.componentArray[i];
+        
+        if(this.checkIfComponentAlreadyExists(componentName)) return;
+  
         this.createComponentFileFromSkelFile(componentName);
-        this.deleteFileAfterCopy(componentName);
+        this.deleteComponentAfterCopy(componentName);
       }
-
-      else {
+    } else {
+      for(let i = 0; i < this.componentArray.length; i++) {
+        const componentName = this.componentArray[i];
+        
+        if(this.checkIfPageAlreadyExists(componentName)) return;
+  
         this.createPageFileFromSkelFile(componentName);
+        this.deletePageAfterCopy(componentName);
       }
     }
   }
@@ -45,6 +50,11 @@ class CreateComponent {
   checkIfComponentAlreadyExists(componentName: string): boolean {
     const component = `${this.componentDirectoryPath}/${componentName}.tsx`;
     return fs.existsSync(component);
+  }
+
+  checkIfPageAlreadyExists(componentName: string): boolean {
+    const page = `${this.componentDirectoryPath}/${componentName}Page.tsx`;
+    return fs.existsSync(page);
   }
 
   createComponentFileFromSkelFile(componentName: string) {
@@ -55,8 +65,9 @@ class CreateComponent {
       const fileContents: string = fs.readFileSync(`${skelComponent}`, 'utf-8').replaceAll('Component', componentName).replaceAll('PropsType', `${componentName}PropsType`);
       fs.writeFileSync(component, fileContents);
       fs.copyFileSync(component, `${this.componentDirectoryPath}/${componentName}.tsx`);
+      console.log(component)
     } catch(e) {
-      this.deleteFileAfterCopy(componentName);
+      this.deleteComponentAfterCopy(componentName);
       throw new Error('Error: Failed to copy file. Please make sure that the file exists and is accessible.');
     }
   }
@@ -70,14 +81,22 @@ class CreateComponent {
       fs.writeFileSync(page, fileContents);
       fs.copyFileSync(page, `${this.pagesDirectoryPath}/${pageName}Page.tsx`);
     } catch(e) {
-      this.deleteFileAfterCopy(pageName);
+      this.deleteComponentAfterCopy(pageName);
       throw new Error('Error: Failed to copy file. Please make sure that the file exists and is accessible.');
     }
   }
 
-  deleteFileAfterCopy(componentName: string) {
+  deleteComponentAfterCopy(componentName: string) {
     try {
       fs.unlinkSync(`${this.skelComponentDirectoryPath}/${componentName}.tsx`);
+    } catch(e) {
+      throw new Error('Error: Failed to delete file. Please make sure that the file exists and is accessible.');
+    }
+  }
+
+  deletePageAfterCopy(componentName: string) {
+    try {
+      fs.unlinkSync(`${this.skelComponentDirectoryPath}/${componentName}Page.tsx`);
     } catch(e) {
       throw new Error('Error: Failed to delete file. Please make sure that the file exists and is accessible.');
     }
